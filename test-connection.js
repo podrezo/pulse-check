@@ -130,12 +130,31 @@ class ConnectionTester {
   static generateStatusMessage(result, url) {
     if (result.success) {
       if (result.statusCode === 200) {
-        return `SUCCESS: HTTP ${result.statusCode} in ${result.duration}ms for ${url}`;
+        return {
+          message: `SUCCESS: HTTP ${result.statusCode} in ${result.duration}ms for ${url}`,
+          isFailure: false
+        };
       } else {
-        return `UNEXPECTED: HTTP ${result.statusCode} in ${result.duration}ms for ${url}`;
+        return {
+          message: `UNEXPECTED: HTTP ${result.statusCode} in ${result.duration}ms for ${url}`,
+          isFailure: true
+        };
       }
     } else {
-      return `FAILED: ${result.error} in ${result.duration}ms for ${url}`;
+      return {
+        message: `FAILED: ${result.error} in ${result.duration}ms for ${url}`,
+        isFailure: true
+      };
+    }
+  }
+
+  // Run the complete test with error handling
+  static async runTest(url, timeout = 10000) {
+    try {
+      const result = await this.test(url, timeout);
+      return this.generateStatusMessage(result, url);
+    } catch (error) {
+      return this.generateStatusMessage(error, url);
     }
   }
 }

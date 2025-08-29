@@ -11,22 +11,14 @@ if (!snsTopicArn) {
 const snsPublisher = new SNSPublisher(snsTopicArn);
 
 exports.run = async () => {
-  try {
-    const result = await ConnectionTester.test(config.targetUrl, config.timeoutMs);
+  const statusInfo = await ConnectionTester.runTest(config.targetUrl, config.timeoutMs);
 
-    const message = ConnectionTester.generateStatusMessage(result, config.targetUrl);
-    console.log(message);
+  console.log(statusInfo.message);
 
-    await snsPublisher.publishHealthCheckResult(result, config.targetUrl);
-
-    return message;
-
-  } catch (error) {
-    const message = ConnectionTester.generateStatusMessage(error, config.targetUrl);
-    console.log(message);
-
-    await snsPublisher.publishHealthCheckResult(error, config.targetUrl);
-
-    return message;
+  // Only send SNS notification if the test result indicates a failure
+  if (statusInfo.isFailure) {
+    await snsPublisher.publishHealthCheckResult(statusInfo, config.targetUrl);
   }
+
+  return statusInfo.message;
 };
