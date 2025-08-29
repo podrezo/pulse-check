@@ -1,0 +1,23 @@
+# "org" ensures this Service is used with the correct Serverless Framework License Key.
+org: podrezo
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: PulseCheck
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  timeout: 11
+  memorySize: 128
+  logRetentionInDays: 14
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - 'test-connection.js'
+    - 'config.json'
+
+functions:
+  checkPulse:
+    handler: handler.run
+    events:
+      - schedule: rate(10 minutes)
