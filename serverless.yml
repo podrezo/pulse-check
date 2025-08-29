@@ -9,12 +9,21 @@ provider:
   timeout: 11
   memorySize: 128
   logRetentionInDays: 14
+  environment:
+    SNS_TOPIC_ARN: ${env:SNS_TOPIC_ARN}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - sns:Publish
+          Resource: ${env:SNS_TOPIC_ARN}
 
 package:
   patterns:
-    - '!node_modules/**'
     - 'test-connection.js'
     - 'config.json'
+    - 'sns-publisher.js'
 
 functions:
   checkPulse:

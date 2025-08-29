@@ -14,6 +14,13 @@ The project consists of:
 - **`serverless.yml`** - Serverless Framework configuration for AWS deployment
 - **`config.json`** - Configuration file for your application settings
 - **`test-connection.js`** - Local testing utility
+- **`sns-publisher.js`** - SNS notification service for health check results
+
+## SNS Notifications
+
+PulseCheck automatically publishes health check results to Amazon SNS (Simple Notification Service), providing real-time alerts and monitoring capabilities.
+
+Every time the Lambda function runs (every 10 minutes), if it detects any problem it automatically publishes the health check result to your configured SNS topic.
 
 ## Architecture
 
@@ -49,10 +56,22 @@ The project consists of:
 
 ### Deployment
 
+**Important**: Make sure you have set the `SNS_TOPIC_ARN` environment variable before deploying.
+
 Deploy to AWS:
 
 ```bash
+# Set environment variable
+export SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME"
+
+# Deploy
 serverless deploy
+```
+
+Or deploy with environment variable inline:
+
+```bash
+SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME" serverless deploy
 ```
 
 ### Testing Locally
@@ -67,6 +86,22 @@ This command will invoke the deployed Lambda function and output the result dire
 
 ## Configuration
 
+### Environment Variables
+
+Before deploying, you need to set the following environment variable:
+
+```bash
+export SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME"
+```
+
+Or create a `.env` file (not tracked in git) with:
+
+```bash
+SNS_TOPIC_ARN=arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME
+```
+
+### Application Configuration
+
 Edit `config.json` to customize your pulse check behavior:
 
 ```json
@@ -74,5 +109,33 @@ Edit `config.json` to customize your pulse check behavior:
   "targetUrl": "https://podrezo.com/",
   "timeoutMs": 10000
 }
-
 ```
+
+**Note**: The `snsTopicArn` in config.json will automatically use the `SNS_TOPIC_ARN` environment variable.
+
+## Monitoring and Alerting
+
+### Real-Time Health Monitoring
+
+PulseCheck provides comprehensive monitoring with automatic alerting:
+
+- **Continuous Monitoring**: Runs every 10 minutes to ensure your services stay healthy
+- **Instant Alerts**: Get notified immediately when issues are detected
+- **Performance Tracking**: Monitor response times and identify performance degradation
+- **Historical Data**: CloudWatch logs provide a complete audit trail of all health checks
+
+### Alert Scenarios
+
+You'll receive SNS notifications for:
+- **Service Down**: Connection refused, DNS failures, or network timeouts
+- **Slow Response**: Services taking longer than your configured timeout
+- **Error Responses**: HTTP status codes other than 200
+- **Configuration Issues**: Invalid URLs or misconfigured endpoints
+
+### Best Practices for SNS Setup
+
+1. **Create Multiple Subscriptions**: Set up different notification channels for different teams
+2. **Use Email for Critical Alerts**: Ensure on-call engineers get immediate notifications
+3. **Configure SMS for Urgent Issues**: Get text messages for severe outages
+4. **Set Up Webhooks**: Integrate with your existing monitoring tools (PagerDuty, Slack, etc.)
+5. **Monitor SNS Delivery**: Set up CloudWatch alarms to ensure SNS messages are being delivered

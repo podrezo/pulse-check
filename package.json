@@ -1,0 +1,22 @@
+{
+  "name": "pulse-check",
+  "version": "1.0.0",
+  "description": "A serverless application to check connection health and publish results to SNS",
+  "main": "handler.js",
+  "scripts": {
+    "test": "node test-connection.js",
+    "deploy": "serverless deploy"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serverless": "^3.38.0"
+  },
+  "keywords": [
+    "serverless",
+    "health-check",
+    "sns",
+    "aws"
+  ],
+  "author": "Podrezo",
+  "license": "MIT"
+}
