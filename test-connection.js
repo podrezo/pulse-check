@@ -161,4 +161,3 @@ class ConnectionTester {
 
 // Export the class for use in other modules
 module.exports = ConnectionTester;
-
