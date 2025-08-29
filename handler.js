@@ -2,7 +2,13 @@ const ConnectionTester = require('./test-connection');
 const config = require('./config.json');
 const SNSPublisher = require('./sns-publisher');
 
-const snsPublisher = new SNSPublisher(config.snsTopicArn);
+// Read SNS topic ARN from environment variable instead of config
+const snsTopicArn = process.env.SNS_TOPIC_ARN;
+if (!snsTopicArn) {
+  throw new Error('SNS_TOPIC_ARN environment variable is not set');
+}
+
+const snsPublisher = new SNSPublisher(snsTopicArn);
 
 exports.run = async () => {
   try {

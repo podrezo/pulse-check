@@ -12,7 +12,7 @@ The project consists of:
 
 - **`handler.js`** - The main Lambda function that contains your business logic
 - **`serverless.yml`** - Serverless Framework configuration for AWS deployment
-- **`config.json`** - Configuration file for your application settings
+- **`config.json`** - Configuration file for your application settings (target URL, timeout)
 - **`test-connection.js`** - Local testing utility
 - **`sns-publisher.js`** - SNS notification service for health check results
 
@@ -56,7 +56,7 @@ Every time the Lambda function runs (every 10 minutes), if it detects any proble
 
 ### Deployment
 
-**Important**: Make sure you have set the `SNS_TOPIC_ARN` environment variable before deploying.
+**Important**: Make sure you have set the `SNS_TOPIC_ARN` environment variable before deploying. This variable will be automatically injected into the Lambda function's environment.
 
 Deploy to AWS:
 
@@ -88,7 +88,7 @@ This command will invoke the deployed Lambda function and output the result dire
 
 ### Environment Variables
 
-Before deploying, you need to set the following environment variable:
+The `SNS_TOPIC_ARN` environment variable is automatically configured in `serverless.yml` and will be injected into your Lambda function. Before deploying, you need to set this environment variable:
 
 ```bash
 export SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME"
@@ -110,8 +110,6 @@ Edit `config.json` to customize your pulse check behavior:
   "timeoutMs": 10000
 }
 ```
-
-**Note**: The `snsTopicArn` in config.json will automatically use the `SNS_TOPIC_ARN` environment variable.
 
 ## Monitoring and Alerting
 
