@@ -26,7 +26,7 @@ exports.run = async (event, context) => {
 
   // Only send SNS notification if the test result indicates a failure
   if (statusInfo.isFailure) {
-    await snsPublisher.publishHealthCheckResult(statusInfo, targetUrl);
+    await snsPublisher.publishMessage(statusInfo.message);
   }
 
   return statusInfo.message;
