@@ -10,10 +10,9 @@ PulseCheck is a lightweight, cost-effective monitoring solution built with AWS L
 
 The project consists of:
 
-- **`handler.js`** - The main Lambda function that contains your business logic
+- **`handler.js`** - The entry point for the Lambda function
 - **`serverless.yml`** - Serverless Framework configuration for AWS deployment
-- **`config.json`** - Configuration file for your application settings (target URL, timeout)
-- **`test-connection.js`** - Local testing utility
+- **`test-connection.js`** - The HTTP connection tester
 - **`sns-publisher.js`** - SNS notification service for health check results
 
 ## SNS Notifications
@@ -27,7 +26,7 @@ Every time the Lambda function runs (every 10 minutes), if it detects any proble
 - **Function Name**: `checkPulse`
 - **Runtime**: Node.js 20.x
 - **Memory**: 128 MB (minimum for cost optimization)
-- **Timeout**: 11 seconds
+- **Timeout**: 11 seconds (HTTP Request timeout will be ~1 second less than the timeout of the function)
 - **Schedule**: Runs every 10 minutes using AWS EventBridge
 - **Trigger**: CloudWatch Events rule with cron expression
 
@@ -52,26 +51,27 @@ Every time the Lambda function runs (every 10 minutes), if it detects any proble
    aws configure
    ```
 
-4. Update `config.json` with your specific configuration
+4. Set up your environment variables (see Configuration section below)
 
 ### Deployment
 
-**Important**: Make sure you have set the `SNS_TOPIC_ARN` environment variable before deploying. This variable will be automatically injected into the Lambda function's environment.
+**Important**: Make sure you have set the required environment variables before deploying. These variables will be automatically injected into the Lambda function's environment.
 
 Deploy to AWS:
 
 ```bash
-# Set environment variable
+# Set environment variables
 export SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME"
+export TARGET_URL="https://your-service.com/"
 
 # Deploy
 serverless deploy
 ```
 
-Or deploy with environment variable inline:
+Or deploy with environment variables inline:
 
 ```bash
-SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME" serverless deploy
+SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME" TARGET_URL="https://your-service.com/" serverless deploy
 ```
 
 ### Testing Locally
@@ -79,36 +79,30 @@ SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME" serverless
 You can test the Lambda function locally using the AWS CLI:
 
 ```bash
-aws lambda invoke --function-name PulseCheck-dev-checkPulse --payload '{}' /dev/stdout
+aws lambda invoke --function-name PulseCheck-dev-checkPulse --payload '{"targetUrl": "https://your-service.com/"}' /dev/stdout
 ```
 
-This command will invoke the deployed Lambda function and output the result directly to your terminal.
+This command will invoke the deployed Lambda function with a test payload and output the result directly to your terminal. The `targetUrl` in the payload should match the URL you want to test.
 
 ## Configuration
 
 ### Environment Variables
 
-The `SNS_TOPIC_ARN` environment variable is automatically configured in `serverless.yml` and will be injected into your Lambda function. Before deploying, you need to set this environment variable:
+The following environment variables are automatically configured in `serverless.yml` and will be injected into your Lambda function. Before deploying, you need to set these environment variables:
 
+**Required:**
 ```bash
 export SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME"
+export TARGET_URL="https://your-service.com/"
 ```
+
+**Note**: The `TARGET_URL` environment variable is used during deployment to configure the scheduled event payload that triggers the Lambda function every 10 minutes. This URL becomes the `targetUrl` field in the event payload that the Lambda function receives.
 
 Or create a `.env` file (not tracked in git) with:
 
 ```bash
 SNS_TOPIC_ARN=arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME
-```
-
-### Application Configuration
-
-Edit `config.json` to customize your pulse check behavior:
-
-```json
-{
-  "targetUrl": "https://podrezo.com/",
-  "timeoutMs": 10000
-}
+TARGET_URL=https://your-service.com/
 ```
 
 ## Monitoring and Alerting
