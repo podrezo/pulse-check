@@ -24,7 +24,6 @@ provider:
 package:
   patterns:
     - 'test-connection.js'
-    - 'config.json'
     - 'sns-publisher.js'
 
 functions:
@@ -33,4 +32,7 @@ functions:
     environment:
       SNS_TOPIC_ARN: ${env:SNS_TOPIC_ARN}
     events:
-      - schedule: rate(10 minutes)
+      - schedule:
+          rate: rate(10 minutes)
+          input:
+            targetUrl: ${env:TARGET_URL}
