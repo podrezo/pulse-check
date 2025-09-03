@@ -42,11 +42,13 @@ Every time the Lambda function runs (every 10 minutes), if it detects any proble
 
 1. Clone the repository
 2. Install dependencies (if any):
+
    ```bash
    npm install
    ```
 
 3. Configure your AWS credentials:
+
    ```bash
    aws configure
    ```
@@ -91,6 +93,7 @@ This command will invoke the deployed Lambda function with a test payload and ou
 The following environment variables are automatically configured in `serverless.yml` and will be injected into your Lambda function. Before deploying, you need to set these environment variables:
 
 **Required:**
+
 ```bash
 export SNS_TOPIC_ARN="arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:YOUR_TOPIC_NAME"
 export TARGET_URL="https://your-service.com/"
@@ -119,6 +122,7 @@ PulseCheck provides comprehensive monitoring with automatic alerting:
 ### Alert Scenarios
 
 You'll receive SNS notifications for:
+
 - **Service Down**: Connection refused, DNS failures, or network timeouts
 - **Slow Response**: Services taking longer than your configured timeout
 - **Error Responses**: HTTP status codes other than 200
