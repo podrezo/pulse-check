@@ -9,10 +9,17 @@ provider:
   timeout: 11
   memorySize: 128
   logRetentionInDays: 14
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - cloudwatch:PutMetricData
+          Resource: "*"
 
 package:
   patterns:
-    - 'check.rb'
+    - '*.rb'
 
 functions:
   checkPulse:
