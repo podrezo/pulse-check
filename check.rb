@@ -14,10 +14,7 @@ def handler(event:, context:)
   result = web_request(uri_to_check, http_timeout)
   puts result.to_s
 
-  # Publish CloudWatch metric on failure
-  unless result.success?
-    publish_failure_metric(uri_to_check.host)
-  end
+  publish_failure_metric(uri_to_check.host, result.success? ? 0.0 : 1.0)
 
   { success: result.success?, result: result.to_s }
 end
@@ -36,7 +33,7 @@ rescue StandardError => e
   Result.new(:error, "#{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}")
 end
 
-def publish_failure_metric(hostname)
+def publish_failure_metric(hostname, value)
   cloudwatch = Aws::CloudWatch::Client.new
 
   cloudwatch.put_metric_data({
@@ -50,7 +47,7 @@ def publish_failure_metric(hostname)
             value: hostname
           }
         ],
-        value: 1.0,
+        value: value,
         unit: 'Count',
         timestamp: Time.now
       }
