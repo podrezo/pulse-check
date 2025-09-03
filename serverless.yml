@@ -5,32 +5,18 @@ service: PulseCheck
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: ruby3.3
   timeout: 11
   memorySize: 128
   logRetentionInDays: 14
-  environment:
-    # SNS Topic ARN for publishing health check results
-    # This should be set via environment variable during deployment
-    SNS_TOPIC_ARN: ${env:SNS_TOPIC_ARN}
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - sns:Publish
-          Resource: ${env:SNS_TOPIC_ARN}
 
 package:
   patterns:
-    - 'test-connection.js'
-    - 'sns-publisher.js'
+    - 'check.rb'
 
 functions:
   checkPulse:
-    handler: handler.run
-    environment:
-      SNS_TOPIC_ARN: ${env:SNS_TOPIC_ARN}
+    handler: check.handler
     events:
       - schedule:
           rate: rate(10 minutes)
