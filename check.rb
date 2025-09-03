@@ -28,7 +28,7 @@ def web_request(uri, timeout = 10_000)
   http.open_timeout = timeout / 1000.0
   http.read_timeout = timeout / 1000.0
 
-  res = http.get(uri.request_uri)
+  res = http.get(uri.request_uri, { 'User-Agent' => 'PulseCheck' })
   Result.new(res.code.to_i)
 rescue Net::OpenTimeout, Net::ReadTimeout, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError, OpenSSL::SSL::SSLError => e
   Result.new(:connection_problem, e.message)
