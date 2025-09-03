@@ -54,7 +54,7 @@ def publish_failure_metric(hostname, value)
     ]
   })
 
-  puts "Published failure metric for #{hostname}"
+  puts "Published metric HTTPRequestFailures for #{hostname} with value #{value}"
 rescue => e
   puts "Failed to publish CloudWatch metric: #{e.message}"
   # Don't re-raise - we don't want CloudWatch failures to break the pulse check
